@@ -61,14 +61,25 @@ h1 span { color: var(--accent-lighter); }
 .filters svg { width: 16px; height: 16px; }
 
 .practice-card { overflow: hidden; border: 1px solid var(--line); border-radius: 15px; background: var(--card); box-shadow: 0 15px 42px #09071335; }
+.session-bar { display: grid; grid-template-columns: 1fr auto; gap: 8px 12px; align-items: center; padding: 11px 24px 10px; background: #241c34; border-bottom: 1px solid var(--line); }
+.session-label { display: flex; flex-wrap: wrap; align-items: center; gap: 7px; color: var(--accent-lighter); font-size: 12px; }
+.session-label svg { color: var(--violet); width: 15px; height: 15px; }
+.session-label span { margin-left: 6px; color: var(--muted); font: 12px var(--mono); }
+.session-counter { color: var(--muted); font: 12px var(--mono); white-space: nowrap; }
+#session-progress { display: block; grid-column: 1 / -1; width: 100%; height: 4px; border: 0; border-radius: 8px; background: #453851; color: var(--accent); }
+#session-progress::-webkit-progress-bar { border-radius: 8px; background: #453851; }
+#session-progress::-webkit-progress-value { border-radius: 8px; background: var(--accent); }
+#session-progress::-moz-progress-bar { border-radius: 8px; background: var(--accent); }
 .lesson-header { display: flex; justify-content: space-between; gap: 14px; align-items: center; min-height: 66px; padding: 13px 24px; border-bottom: 1px solid var(--line); }
 .lesson-info { display: flex; min-width: 0; align-items: center; flex-wrap: wrap; column-gap: 11px; row-gap: 5px; }
 .lesson-genre { background: #392b43; color: #efd0e8; border-radius: 5px; padding: 3px 8px; font-size: 11px; font-weight: 700; letter-spacing: .05em; white-space: nowrap; }
 .lesson-genre[data-genre="science"] { background: #283852; color: #cadbfa; }
 .lesson-genre[data-genre="culture"] { background: #3d304d; color: #e0c7f6; }
 .lesson-genre[data-genre="news"] { background: #3d322e; color: #f0cdb7; }
+.lesson-genre[data-genre="vocab"] { background: #223b39; color: #c3e4d9; }
 .lesson-header h2 { min-width: 0; font-size: 15px; font-weight: 700; line-height: 1.5; overflow-wrap: anywhere; }
 .lesson-header time { color: var(--dim); font: 12px/1.5 var(--mono); white-space: nowrap; }
+.lesson-reading { color: var(--muted); font-size: 12px; }
 .chapter-status { flex: none; display: flex; align-items: center; gap: 11px; color: var(--muted); font: 12px var(--mono); white-space: nowrap; }
 .chapter-dots { display: flex; gap: 5px; }
 .chapter-dots span { width: 14px; height: 3px; border-radius: 10px; background: #554966; }
@@ -79,6 +90,7 @@ h1 span { color: var(--accent-lighter); }
 .typing-surface { position: relative; min-height: 100px; padding: 17px 18px 14px; border: 1px solid #3a304d; border-radius: 10px; background: #171324; cursor: text; }
 .typing-surface:focus-within { border-color: #a784bd; }
 .typing-surface.has-error { border-color: #c9768a; background: #231625; }
+.typing-surface.is-paused { opacity: .65; cursor: default; }
 .passage { color: var(--text); font: 700 clamp(19px, 2.2vw, 28px)/1.65 var(--serif); letter-spacing: .035em; overflow-wrap: anywhere; }
 .romaji { margin-top: 6px; color: #a294b9; font: 500 clamp(14px, 1.55vw, 18px)/1.8 var(--mono); letter-spacing: .04em; overflow-wrap: anywhere; }
 .typed { color: #eac3df; }
@@ -100,11 +112,19 @@ h1 span { color: var(--accent-lighter); }
 
 .lesson-result { padding: 3px 0; }
 .result-heading { display: flex; align-items: center; gap: 12px; }
-.result-heading > div > p:last-child { color: var(--text); font-size: 18px; font-weight: 700; }
-.result-heading > div > p:last-child:focus { outline: none; }
+.result-heading h2 { color: var(--text); font-size: 18px; font-weight: 700; }
+.result-heading h2:focus { outline: none; }
 .result-check { display: grid; width: 38px; height: 38px; place-items: center; border: 1px solid #654b74; border-radius: 9px; color: var(--accent-lighter); background: #362840; }
 .result-check svg { width: 20px; height: 20px; }
-.result-notes { margin: 13px 0 0; padding-left: 20px; color: var(--muted); font-size: 14px; line-height: 1.75; }
+.result-summary { margin: 12px 0 0; color: var(--muted); font-size: 14px; }
+.result-section { margin-top: 17px; }
+.result-section h3 { margin: 0 0 6px; color: var(--accent-lighter); font-size: 13px; }
+.review-list { display: grid; gap: 6px; }
+.review-list details { padding: 8px 11px; border: 1px solid var(--line); border-radius: 8px; background: var(--raised); color: var(--muted); font-size: 13px; line-height: 1.7; }
+.review-list summary, .saved-vocabulary > summary { cursor: pointer; color: var(--text); font-weight: 650; }
+.review-list p, .review-list ul { margin: 5px 0 0; }
+.review-list ul { padding-left: 22px; }
+.review-list a { display: inline-block; margin-top: 6px; color: var(--accent-lighter); }
 
 .metrics { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin-top: 13px; }
 .metric { display: flex; align-items: center; gap: 12px; min-height: 76px; padding: 10px 15px; background: #191626; border: 1px solid #30293f; border-radius: 10px; }
@@ -123,6 +143,8 @@ h1 span { color: var(--accent-lighter); }
 .records-dialog form { position: absolute; top: 14px; right: 14px; }
 .close-button { width: 38px; padding: 0; font-size: 16px; }
 .records-summary { margin-top: 11px; color: var(--muted); font-size: 14px; }
+.saved-vocabulary { margin-top: 13px; font-size: 14px; }
+.saved-vocabulary .review-list { margin-top: 7px; }
 .record-list { margin: 12px 0 0; padding: 0; list-style: none; }
 .record-list li { display: grid; gap: 3px; padding: 11px 0; border-top: 1px solid var(--line); }
 .record-list li span { color: var(--muted); font-size: 12px; }
@@ -148,7 +170,7 @@ h1 span { color: var(--accent-lighter); }
   .filters { gap: 4px; }
   .filters button { gap: 4px; padding-inline: 7px; min-height: 36px; font-size: 12px; }
   .filters svg { width: 13px; height: 13px; }
-  .lesson-header, .lesson-footer { padding-inline: 13px; }
+  .session-bar, .lesson-header, .lesson-footer { padding-inline: 13px; }
   .lesson-header h2 { font-size: 14px; }
   .chapter-status { gap: 6px; font-size: 11px; }
   .chapter-dots { gap: 3px; }

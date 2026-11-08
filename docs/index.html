@@ -4,13 +4,16 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#131120">
-  <meta name="description" content="歴史・科学・文化・ニュースを一文ずつ学べる、日本語のタイピング練習。">
+  <meta name="description" content="歴史・科学・文化・ニュースと日本語の語彙を学べる、約5分ぶんのタイピング練習。">
   <title>知の打鍵 | 学べるタイピング</title>
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="style.css">
   <script src="typing.js" defer></script>
   <script src="facts-extra.js" defer></script>
+  <script src="facts-expanded.js" defer></script>
+  <script src="vocabulary.js" defer></script>
   <script src="stories.js" defer></script>
+  <script src="session.js" defer></script>
   <script src="app.js" defer></script>
 </head>
 <body>
@@ -34,6 +37,9 @@
     <symbol id="i-external" viewBox="0 0 24 24"><path d="M13 5h6v6m0-6-8 8m8 0v4a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h4"/></symbol>
     <symbol id="i-close" viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18"/></symbol>
     <symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12 4.5 4.5L19 7"/></symbol>
+    <symbol id="i-vocab" viewBox="0 0 24 24"><path d="M4 5.5h12m-6-2v2M6 8c2 4 4 6 8 8M14 6c-1 5-4 9-10 12m10 1 3.5-8 3.5 8m-5.7-2h4.4"/></symbol>
+    <symbol id="i-pause" viewBox="0 0 24 24"><path d="M9 5v14m6-14v14"/></symbol>
+    <symbol id="i-play" viewBox="0 0 24 24"><path d="m8 5 11 7-11 7V5Z"/></symbol>
   </svg>
   <header class="header">
     <div class="frame header-inner">
@@ -50,7 +56,7 @@
       <div class="hero-copy">
         <p class="eyebrow"><svg><use href="#i-spark"/></svg> THE TYPING JOURNAL</p>
         <h1 id="main-title">打つたび、<br><span>世界がひろがる。</span></h1>
-        <p class="hero-description">歴史、科学、文化、ニュース。<br class="narrow">一文ずつ、知らなかった世界をのぞいてみよう。</p>
+        <p class="hero-description">歴史、科学、文化、ニュース、そして日本語の語彙。<br class="narrow">ことばを打って、知らなかった世界をのぞいてみよう。</p>
       </div>
       <img class="hero-art" src="artwork.svg" alt="" width="430" height="236">
       <span class="hero-index" aria-hidden="true">01 / DISCOVER BY TYPING</span>
@@ -65,15 +71,22 @@
           <button type="button" data-genre="science" aria-pressed="false"><svg><use href="#i-science"/></svg>科学</button>
           <button type="button" data-genre="culture" aria-pressed="false"><svg><use href="#i-culture"/></svg>文化</button>
           <button type="button" data-genre="news" aria-pressed="false"><svg><use href="#i-news"/></svg>ニュース</button>
+          <button type="button" data-genre="vocab" aria-pressed="false"><svg><use href="#i-vocab"/></svg>語彙</button>
         </div>
         <span class="topic-count" id="topic-count"></span>
       </div>
 
       <article class="practice-card">
-        <header class="lesson-header">
+        <div class="session-bar">
+          <p class="session-label"><svg><use href="#i-clock"/></svg><strong id="session-estimate">目安 約5分</strong><span id="session-position"></span></p>
+          <p class="session-counter"><span id="session-count"></span> 文</p>
+          <progress id="session-progress" max="1" value="0" aria-label="セッションの入力進捗"></progress>
+        </div>
+        <header class="lesson-header" id="lesson-header">
           <div class="lesson-info">
             <span class="lesson-genre" id="lesson-genre">歴史</span>
             <h2 id="lesson-title"></h2>
+            <span class="lesson-reading" id="lesson-reading" hidden></span>
             <time id="lesson-date" hidden></time>
           </div>
           <div class="chapter-status"><span class="chapter-dots" id="chapter-dots" aria-hidden="true"></span><span id="chapter-count" aria-label="練習の進み具合">01 / 04</span></div>
@@ -89,16 +102,24 @@
             <p class="typing-hint" id="typing-hint"><svg><use href="#i-keyboard"/></svg><span>半角英数で入力するとスタート</span></p>
           </div>
           <div class="lesson-result" id="lesson-result" hidden>
-            <div class="result-heading"><span class="result-check"><svg><use href="#i-check"/></svg></span><div><p class="eyebrow">TOPIC COMPLETE</p><p id="result-heading" tabindex="-1">このテーマを読み終えました</p></div></div>
-            <ul class="result-notes" id="result-notes"></ul>
+            <div class="result-heading"><span class="result-check"><svg><use href="#i-check"/></svg></span><div><p class="eyebrow">SESSION COMPLETE</p><h2 id="result-heading" tabindex="-1">セッション完了</h2></div></div>
+            <p class="result-summary" id="result-summary"></p>
+            <section class="result-section" id="result-words" hidden>
+              <h3>今回出会ったことば</h3>
+              <div class="review-list" id="result-vocabulary"></div>
+            </section>
+            <section class="result-section">
+              <h3>入力した文章を読み返す</h3>
+              <div class="review-list" id="result-notes"></div>
+            </section>
           </div>
         </div>
 
         <footer class="lesson-footer">
           <a id="lesson-source" class="source-link" target="_blank" rel="noopener noreferrer" hidden><svg><use href="#i-book"/></svg><span>出典を読む</span><svg class="external"><use href="#i-external"/></svg></a>
           <div class="lesson-actions">
-            <button type="button" class="quiet restart-button" id="restart" title="最初の文に戻る（Esc）"><svg><use href="#i-reset"/></svg>やり直す</button>
-            <button type="button" class="next-button" id="next" title="読了後は Enter でも次のテーマに進めます">次のテーマ <svg><use href="#i-next"/></svg></button>
+            <button type="button" class="quiet restart-button" id="restart" hidden><svg><use href="#i-reset"/></svg>最初から</button>
+            <button type="button" class="next-button" id="next"><span id="next-label">別のセット</span><svg><use id="next-icon" href="#i-next"/></svg></button>
           </div>
         </footer>
       </article>
@@ -117,6 +138,10 @@
     <p class="eyebrow"><svg><use href="#i-stats"/></svg> YOUR PROGRESS</p>
     <h2 id="records-title">練習記録</h2>
     <p class="records-summary" id="records-summary"></p>
+    <details class="saved-vocabulary" id="saved-vocabulary" hidden>
+      <summary id="saved-vocabulary-label">語彙帳</summary>
+      <div class="review-list" id="saved-vocabulary-list"></div>
+    </details>
     <ul class="record-list" id="record-list"></ul>
   </dialog>
   <noscript><p class="frame">タイピング練習を始めるには、ブラウザで JavaScript を有効にしてください。</p></noscript>

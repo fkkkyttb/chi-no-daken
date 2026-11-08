@@ -139,12 +139,17 @@
   ];
 
   const extraFacts = Array.isArray(window.YofukashiExtraFacts) ? window.YofukashiExtraFacts : [];
-  const allFacts = [...coreFacts, ...extraFacts];
+  const expandedFacts = Array.isArray(window.YofukashiExpandedFacts) ? window.YofukashiExpandedFacts : [];
+  const allFacts = [...coreFacts, ...extraFacts, ...expandedFacts];
+  const allVocabulary = window.YofukashiVocabulary;
   const pools = { all: allFacts };
+  const vocabularyPools = { all: allVocabulary, vocab: allVocabulary };
   for (const genre of ["history", "science", "culture", "news"]) {
     pools[genre] = allFacts.filter((fact) => fact.genre === genre);
+    vocabularyPools[genre] = allVocabulary.filter((entry) => entry.groups.includes(genre));
   }
   const counts = Object.fromEntries(Object.entries(pools).map(([genre, facts]) => [genre, facts.length]));
+  const vocabularyCounts = Object.fromEntries(Object.entries(vocabularyPools).map(([genre, entries]) => [genre, entries.length]));
 
   function orderForCycle(pool, cycle) {
     const order = [...pool];
@@ -158,8 +163,7 @@
     return order;
   }
 
-  function getStory(genre = "all", round = 0) {
-    const pool = Object.hasOwn(pools, genre) ? pools[genre] : pools.all;
+  function selectFrom(pool, round) {
     const index = Number.isSafeInteger(round) && round > 0 ? round : 0;
     const cycle = Math.floor(index / pool.length);
     const order = orderForCycle(pool, cycle);
@@ -170,5 +174,13 @@
     return order[index % pool.length];
   }
 
-  window.YofukashiStories = { getStory, counts };
+  function getStory(genre = "all", round = 0) {
+    return selectFrom(Object.hasOwn(pools, genre) ? pools[genre] : pools.all, round);
+  }
+
+  function getVocabulary(genre = "all", round = 0) {
+    return selectFrom(Object.hasOwn(vocabularyPools, genre) ? vocabularyPools[genre] : allVocabulary, round);
+  }
+
+  window.YofukashiStories = { getStory, getVocabulary, counts, vocabularyCounts };
 })();
